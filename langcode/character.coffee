@@ -1,3 +1,11 @@
+data00 = require './character_data00.js'
+data01 = require './character_data01.js'
+data02 = require './character_data02.js'
+data0e = require './character_data0e.js'
+dataLatin1 = require './character_dataLatin1.js'
+dataPrivateUse = require './character_dataPrivateUse.js'
+dataUndefined = require './character_dataUndefined.js'
+
 Langcode =
 
     # return the codepoint's plane.
@@ -5,9 +13,23 @@ Langcode =
         ch >>> 16
 
     # Return the codePoint's category
-    getType : (codePoint) ->
+    getType : (cp) ->
         type = @UNASSIGNED
-        # TODO
+
+        if cp >= @MIN_CODE_POINT and cp <= @FAST_PATH_MAX
+            type = dataLatin1.LangcodeDataLatin1.getType(cp)
+        else
+            plane = @getPlane(cp)
+            switch plane
+                when 0 then type = data00.LangcodeData00.getType(cp)
+                when 1 then type = data01.LangcodeData01.getType(cp)
+                when 2 then type = data02.LangcodeData02.getType(cp)
+                when 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13
+                    type = dataUndefined.LangcodeUndefined.getType(cp)
+                when 14 then type = data0e.LangcodeData0E.getType(cp)
+                when 15, 16
+                    type = dataPrivateUse.LangcodePrivateUse.getType(cp)
+        # return type
         type
 
     MIN_CODE_POINT : 0x000000

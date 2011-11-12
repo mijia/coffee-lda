@@ -1,6 +1,6 @@
 fs = require 'fs'
 ngram = require './ngram.js'
-character = require './langcode/character.js'
+character = require './langcode/character_data00.js'
 
 
 main = ->
@@ -16,6 +16,6 @@ main = ->
     ###
 
     ngram.ngram_analyze content
-    console.log character.Langcode.FAST_PATH_MAX
+    console.log character.LangcodeData00.getType 'a'
 
 main()
