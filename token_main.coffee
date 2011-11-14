@@ -1,7 +1,5 @@
 fs = require 'fs'
 ngram = require './ngram.js'
-character = require './langcode/character_data00.js'
-
 
 main = ->
     # Read the file
@@ -16,6 +14,5 @@ main = ->
     ###
 
     ngram.ngram_analyze content
-    console.log character.LangcodeData00.getType 'a'
 
 main()
