@@ -42,7 +42,7 @@ ngram_scan = (words) ->
         for pos in [0..words.length - n_count]
             sel_words = words.slice pos, n_count + pos
             if sel_words.length > 1
-                for i in [1..sel_words.length - 1]
+                for i in [1...sel_words.length]
                     if sel_words[i].length > 1 and sel_words[i] isnt '_END'
                         sel_words[i] = ' ' + sel_words[i]
             results.push sel_words.join('')

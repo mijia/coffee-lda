@@ -4,7 +4,7 @@ fs = require 'fs'
 main = ->
     docArrayFile = "data/documents.data"
 
-    documents = []
+    docs = []
     vSize = 0
 
     reader = new LineReader docArrayFile
@@ -15,14 +15,14 @@ main = ->
         line = reader.readLine()
         if line
             docArray = (parseInt(num) for num in line.split(' '))
-            documents.push docArray
+            docs.push docArray
 
     reader.close()
 
-    console.log "Total documents #{documents.length}, with V=#{vSize}"
+    console.log "Total documents #{docs.length}, with V=#{vSize}"
     console.log "Ready to run the Gibbs...."
 
-    gibbs = new GibbsLdaMod documents, vSize
+    gibbs = new GibbsLdaMod docs, vSize
     gibbs.configure 10000, 2000, 100, 10
     gibbs.run 10, 2, 0.5
 
