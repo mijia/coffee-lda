@@ -1,10 +1,10 @@
-data00 = require './character_data00.js'
-data01 = require './character_data01.js'
-data02 = require './character_data02.js'
-data0e = require './character_data0e.js'
-dataLatin1 = require './character_dataLatin1.js'
-dataPrivateUse = require './character_dataPrivateUse.js'
-dataUndefined = require './character_dataUndefined.js'
+{ LangcodeData00 } = require './character_data00.js'
+{ LangcodeData01 } = require './character_data01.js'
+{ LangcodeData02 } = require './character_data02.js'
+{ LangcodeData0E } = require './character_data0e.js'
+{ LangcodeDataLatin1 } = require './character_dataLatin1.js'
+{ LangcodeDataPrivateUse } = require './character_dataPrivateUse.js'
+{ LangcodeDataUndefined } = require './character_dataUndefined.js'
 
 Langcode =
 
@@ -17,18 +17,18 @@ Langcode =
         type = @UNASSIGNED
 
         if cp >= @MIN_CODE_POINT and cp <= @FAST_PATH_MAX
-            type = dataLatin1.LangcodeDataLatin1.getType(cp)
+            type = LangcodeDataLatin1.getType(cp)
         else
             plane = @getPlane(cp)
             switch plane
-                when 0 then type = data00.LangcodeData00.getType(cp)
-                when 1 then type = data01.LangcodeData01.getType(cp)
-                when 2 then type = data02.LangcodeData02.getType(cp)
+                when 0 then type = LangcodeData00.getType(cp)
+                when 1 then type = LangcodeData01.getType(cp)
+                when 2 then type = LangcodeData02.getType(cp)
                 when 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13
-                    type = dataUndefined.LangcodeUndefined.getType(cp)
-                when 14 then type = data0e.LangcodeData0E.getType(cp)
+                    type = LangcodeUndefined.getType(cp)
+                when 14 then type = LangcodeData0E.getType(cp)
                 when 15, 16
-                    type = dataPrivateUse.LangcodePrivateUse.getType(cp)
+                    type = LangcodePrivateUse.getType(cp)
         # return type
         type
 
