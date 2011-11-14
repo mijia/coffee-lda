@@ -1,4 +1,5 @@
 fs = require 'fs'
+{ GibbsLdaMod } = require './gibbs_lda.js'
 
 main = ->
     docArrayFile = "data/documents.data"
@@ -19,8 +20,12 @@ main = ->
     reader.close()
 
     console.log "Total documents #{documents.length}, with V=#{vSize}"
+    console.log "Ready to run the Gibbs...."
 
-    
+    gibbs = new GibbsLdaMod documents, vSize
+    gibbs.configure 10000, 2000, 100, 10
+    gibbs.run 10, 2, 0.5
+
 
 class LineReader
     # Read lines from a file
