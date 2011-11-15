@@ -1,3 +1,5 @@
+fs = require 'fs'
+
 class GibbsLdaMod
     # Gibbs sampler for LDA
 
@@ -18,17 +20,17 @@ class GibbsLdaMod
         @sampleLag = sampleLag
 
     initialState: (kTopic) ->
-        @nw = Au.init_2d_array @vSize, kTopic # number of instances of word_i assigned to topic_j
-        @nd = Au.init_2d_array @mSize, kTopic # number of words in document_i assigned to topic_j
-        @nwsum = Au.init_array kTopic # total number of words assigned to topic_j
-        @ndsum = Au.init_array @mSize # total number of words in document i
+        @nw = Au.init2dArray @vSize, kTopic # number of instances of word_i assigned to topic_j
+        @nd = Au.init2dArray @mSize, kTopic # number of words in document_i assigned to topic_j
+        @nwsum = Au.initArray kTopic # total number of words assigned to topic_j
+        @ndsum = Au.initArray @mSize # total number of words in document i
 
         # the z_i are initialzed to values in [1, K] to determine the
         # init state of Markov chain
-        @z = Au.init_2d_array @mSize, 0 # topic assignments for each word
+        @z = Au.init2dArray @mSize, 0 # topic assignments for each word
         for m in [0...@mSize]
             nWords = @docs[m].length
-            @z[m] = Au.init_array nWords
+            @z[m] = Au.initArray nWords
             for n in [0...nWords]
                 topic = parseInt(Math.random() * kTopic)
                 @z[m][n] = topic
@@ -46,10 +48,11 @@ class GibbsLdaMod
         @alpha = alpha
         @beta = beta
 
+        start_at = new Date().getTime()
         # init sampler stat
         if @sampleLag > 0
-            @thetasum = Au.init_2d_array @mSize, @K # cumulative stats of theta
-            @phisum = Au.init_2d_array @K, @vSize # cumulative stats of phi
+            @thetasum = Au.init2dArray @mSize, @K # cumulative stats of theta
+            @phisum = Au.init2dArray @K, @vSize # cumulative stats of phi
             @numStats = 0 # size of stats
 
         @initialState kTopic
@@ -68,20 +71,20 @@ class GibbsLdaMod
                 else
                     console.log "Sampling with iters #{i}"
                     @debugTheta()
+                ella = new Date().getTime() - start_at
+                console.log "* time == #{ella/1000} seconds."
 
             if i > @burnIn and @sampleLag > 0 and i % @sampleLag is 0
                 @updateParams()
 
     debugTheta: ->
         # only for debug monitoring usage
-        output = Au.init_array @mSize
-        topic = 0
-        for m in [0...@mSize]
-            if @sampleLag > 0
-                output[m] = @thetasum[m][topic] / @numStats
-            else
-                output[m] = (@nd[m][topic] + @alpha) / (@ndsum[m] + @K * @alpha)
+        output = Au.initArray @K
+        doc = 1
+        for k in [0...@K]
+            output[k] = (@nd[doc][k] + @alpha) / (@ndsum[doc] + @K * @alpha)
 
+        output = output.sort().reverse()[0..10]
         console.log output.join(' ')
 
     sampleFullConditional: (m, n) ->
@@ -93,7 +96,7 @@ class GibbsLdaMod
         @ndsum[m] -= 1
 
         # do multinomial sampling via cumulative method
-        p = Au.init_array @K
+        p = Au.initArray @K
         for k in [0...@K]
             p[k] = (@nw[@docs[m][n]][k] + @beta) / (@nwsum[k] + @vSize * @beta)
             p[k] *= (@nd[m][k] + @alpha) / (@ndsum[m] + @K * @alpha)
@@ -130,7 +133,7 @@ class GibbsLdaMod
     getTheta: ->
         # Get the estimated document--topic associations.
         # If sampleLag  > 0 then the mean value of all sampled stats is for theta[][]
-        theta = Au.init_2d_array @mSize, @K
+        theta = Au.init2dArray @mSize, @K
         if @sampleLag > 0 and @numstats > 0
             for m in [0...@mSize]
                 for k in [0...@K]
@@ -143,29 +146,49 @@ class GibbsLdaMod
         theta
 
     getPhi: ->
-        # Get estimated topic--word associations.
+        # Get estimated word--topic associations.
         # If sampleLag > 0 then the mean value of all sampled stats is for phi[][]
-        phi = Au.init_2d_array @K, @vSize
+        # WARNING: this dimensions are not same with the @phisum's
+        phi = Au.init2dArray @vSize, @K
         if @sampleLag > 0 and @numStats > 0
-            for k in [0...@K]
-                for w in [0...@vSize]
-                    phi[k][w] = @phisum[k][w] / @numStats
+            for w in [0...@vSize]
+                for k in [0...@K]
+                    phi[w][k] = @phisum[k][w] / @numStats
         else
-            for k in [0...@K]
-                for w in [0...@vSize]
-                    phi[k][w] = (@nw[w][k] + @beta) / (@nwsum[k] + @vSize * @beta)
+            for w in [0...@vSize]
+                for k in [0...@K]
+                    phi[w][k] = (@nw[w][k] + @beta) / (@nwsum[k] + @vSize * @beta)
 
         phi
 
+    saveModel: (dataDir) ->
+        # save the model's phi and theta data for later use
+        _saveArray = (data, filename) ->
+            filepath = "#{dataDir}#{filename}"
+            fd = fs.openSync filepath, 'w'
+
+            for x in [0...data.length]
+                dataLine = data[x].join ' '
+                fs.writeSync fd, "#{dataLine}\n"
+
+            fs.closeSync fd
+
+        data = @getPhi()
+        _saveArray data, "phi.data"
+
+        data = @getTheta()
+        _saveArray data, "theta.data"
+
+
 Au =
     # Utils funcs for Array init
-    init_array: (x) ->
+    initArray: (x) ->
         array = []
         for i in [0...x]
             array[i] = 0
         array
 
-    init_2d_array: (x, y) ->
+    init2dArray: (x, y) ->
         array = []
         for i in [0...x]
             array[i] = []
@@ -175,3 +198,4 @@ Au =
         array
 
 exports.GibbsLdaMod = GibbsLdaMod
+exports.Au = Au

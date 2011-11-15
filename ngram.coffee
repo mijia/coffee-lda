@@ -35,8 +35,6 @@ ngram_scan = (words) ->
     results = []
     if words.length == 0
         return results
-    words.unshift 'START'
-    words.push '_END'
     for n_count in [2..5]
         if words.length < n_count then continue
         for pos in [0..words.length - n_count]

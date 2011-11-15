@@ -1,4 +1,4 @@
 data/*/*.*
+server/*.*
 data/*.*
 *.swp
-*.js
