@@ -1,3 +1,7 @@
+###
+# Code tranformed from mmseg4n (which transfromed from mmseg4j)
+###
+
 { LangcodeData00 } = require './character_data00.js'
 { LangcodeData01 } = require './character_data01.js'
 { LangcodeData02 } = require './character_data02.js'

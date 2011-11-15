@@ -1,3 +1,9 @@
+###
+# Please checkout LdaGibbsSampler.java for more information
+# The algorithm is introduced in Tom Griffiths' paper "Gibbs sampling in
+# the generative model of Latent Dirichlet Allocation" (2002)
+###
+
 fs = require 'fs'
 
 class GibbsLdaMod

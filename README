@@ -1,0 +1,26 @@
+A simple implementation of Gibbs-Lda algo written in CoffeeScript running on node.js.
+
+== Routine ==
+
+Please compile all the .coffee files for the js modules, also including
+the files under langcode/
+
+$ coffee -c *.coffee
+
+Orgnize all the data files under 'data/corpus', then run
+
+$ node token_main.js
+which will tokenize all the documents under data/corpus for each file as
+a single document, and create the docuemnts array and vocabulary file.
+
+then,
+$ node lda_main.js
+to run lda process, you can tune the parameters in lda_main.coffee
+the performance depends on #document * #kTopic, #voc * #kTopic
+once it's done, the model's phi and theta matrix will be under data/ dir
+
+$ node data_server.js
+data server is simple browsing server for the data, but is very coupled to
+my own business, so make your own, :)
+
+for any information, you can contact me at winters.mi@gmail.com
