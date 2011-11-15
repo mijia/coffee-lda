@@ -27,7 +27,7 @@ main = ->
             if doc of docTitles
                 title = docTitles[doc]
                 docLink =
-                    content: "<a href=\"http://10.241.5.192:8000/post/#{doc}\" target=\"_blank\">#{title}</a>"
+                    content: "<a href=\"http://test.com/post/#{doc}\" target=\"_blank\">#{title}</a>"
                 topic.docInfo.push docLink
 
     console.log 'Data inited.'
