@@ -23,7 +23,7 @@ main = ->
     console.log "Ready to run the Gibbs...."
 
     gibbs = new GibbsLdaMod docs, vSize
-    gibbs.configure 10000, 2000, 100, 10
+    gibbs.configure 10000, 2000, 500, 50
     gibbs.run 10, 2, 0.5
 
 

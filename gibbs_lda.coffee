@@ -41,7 +41,6 @@ class GibbsLdaMod
             # total number of words in document_i
             @ndsum[m] = nWords
 
-
     run: (kTopic, alpha, beta) ->
         @K = kTopic
         @alpha = alpha
@@ -65,13 +64,25 @@ class GibbsLdaMod
 
             if i % @thinInterval is 0
                 if i <= @burnIn
-                    console.log 'Burn-In'
+                    console.log "Burn-In with iters #{i}"
                 else
-                    console.log 'Sampling'
+                    console.log "Sampling with iters #{i}"
+                    @debugTheta()
 
             if i > @burnIn and @sampleLag > 0 and i % @sampleLag is 0
                 @updateParams()
-                console.log 'Update params'
+
+    debugTheta: ->
+        # only for debug monitoring usage
+        output = Au.init_array @mSize
+        topic = 0
+        for m in [0...@mSize]
+            if @sampleLag > 0
+                output[m] = @thetasum[m][topic] / @numStats
+            else
+                output[m] = (@nd[m][topic] + @alpha) / (@ndsum[m] + @K * @alpha)
+
+        console.log output.join(' ')
 
     sampleFullConditional: (m, n) ->
         # remove z_i from the count vars
@@ -116,6 +127,35 @@ class GibbsLdaMod
 
         @numStats += 1
 
+    getTheta: ->
+        # Get the estimated document--topic associations.
+        # If sampleLag  > 0 then the mean value of all sampled stats is for theta[][]
+        theta = Au.init_2d_array @mSize, @K
+        if @sampleLag > 0 and @numstats > 0
+            for m in [0...@mSize]
+                for k in [0...@K]
+                    theta[m][k] = @thetasum[m][k] / @numStats
+        else
+            for m in [0...@mSize]
+                for k in [0...@K]
+                    theta[m][k] = (@nd[m][k] + @alpha) / (@ndsum[m] + @K * @alpha)
+
+        theta
+
+    getPhi: ->
+        # Get estimated topic--word associations.
+        # If sampleLag > 0 then the mean value of all sampled stats is for phi[][]
+        phi = Au.init_2d_array @K, @vSize
+        if @sampleLag > 0 and @numStats > 0
+            for k in [0...@K]
+                for w in [0...@vSize]
+                    phi[k][w] = @phisum[k][w] / @numStats
+        else
+            for k in [0...@K]
+                for w in [0...@vSize]
+                    phi[k][w] = (@nw[w][k] + @beta) / (@nwsum[k] + @vSize * @beta)
+
+        phi
 
 Au =
     # Utils funcs for Array init
