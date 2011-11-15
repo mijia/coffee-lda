@@ -19,6 +19,10 @@ to run lda process, you can tune the parameters in lda_main.coffee
 the performance depends on #document * #kTopic, #voc * #kTopic
 once it's done, the model's phi and theta matrix will be under data/ dir
 
+then,
+$ node render_topic.js
+to create the topics/words/docs json file for data-server
+
 $ node data_server.js
 data server is simple browsing server for the data, but is very coupled to
 my own business, so make your own, :)
